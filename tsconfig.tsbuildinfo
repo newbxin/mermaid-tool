@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/centerbar.tsx","./src/components/editorpanel.tsx","./src/components/header.tsx","./src/components/previewpanel.tsx","./src/components/statusbar.tsx","./src/editor/mermaidlanguage.ts","./src/hooks/usemermaid.ts","./src/hooks/usetheme.tsx","./src/lib/download.ts"],"version":"5.8.3"}
