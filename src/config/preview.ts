@@ -1,0 +1,3 @@
+export const PREVIEW_MIN_ZOOM = 0.1;
+export const PREVIEW_MAX_ZOOM = 20;
+export const PREVIEW_DEFAULT_ZOOM_STEP_PERCENT = 100;

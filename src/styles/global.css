@@ -22,6 +22,10 @@ button {
   font: inherit;
 }
 
+input {
+  font: inherit;
+}
+
 .app-shell {
   display: grid;
   grid-template-rows: 64px minmax(0, 1fr) 28px;
@@ -118,6 +122,114 @@ button {
   min-width: 0;
 }
 
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.zoom-control {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.zoom-control .toolbar-button {
+  min-width: 58px;
+}
+
+.zoom-step-input,
+.zoom-percent-input {
+  width: 56px;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--surface);
+  font-size: 12px;
+}
+
+.zoom-percent-control {
+  display: grid;
+  grid-template-columns: 30px 58px 16px 30px;
+  align-items: center;
+  min-height: 30px;
+}
+
+.zoom-adjust-button {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  min-height: 30px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.zoom-adjust-button:first-child {
+  border-radius: 6px 0 0 6px;
+}
+
+.zoom-adjust-button:last-child {
+  border-radius: 0 6px 6px 0;
+}
+
+.zoom-percent-input {
+  width: 58px;
+  border-right: 0;
+  border-left: 0;
+  border-radius: 0;
+  text-align: right;
+}
+
+.zoom-percent-suffix {
+  display: grid;
+  place-items: center;
+  min-height: 30px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  background: var(--surface);
+  font-size: 12px;
+}
+
+.zoom-step-input:hover,
+.zoom-step-input:focus,
+.zoom-percent-input:hover,
+.zoom-percent-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.zoom-adjust-button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.zoom-step-input[aria-invalid='true'],
+.zoom-percent-input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+.zoom-percent-input[aria-invalid='true'] + .zoom-percent-suffix {
+  border-top-color: var(--danger);
+  border-bottom-color: var(--danger);
+}
+
+.zoom-error {
+  max-width: 180px;
+  color: var(--danger);
+  font-size: 11px;
+  line-height: 1.2;
+}
+
 .toolbar-button,
 .icon-button,
 .convert-button {
@@ -142,6 +254,7 @@ button {
 
 .toolbar-button:disabled,
 .icon-button:disabled,
+.zoom-adjust-button:disabled,
 .convert-button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
@@ -196,15 +309,22 @@ button {
 
 .preview-stage--pannable {
   cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .preview-stage--pannable:active {
   cursor: grabbing;
 }
 
+.diagram-frame {
+  position: relative;
+}
+
 .diagram-canvas {
-  transform-origin: center center;
-  transition: transform 80ms ease-out;
+  transform-origin: top left;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .diagram-canvas svg {
