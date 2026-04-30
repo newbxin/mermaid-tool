@@ -67,6 +67,9 @@ export function PreviewPanel({ svg, error, isMaximized, onToggleMaximize }: Prev
   const previewStageRef = useRef<HTMLDivElement | null>(null);
   const diagramFrameRef = useRef<HTMLDivElement | null>(null);
   const dragStart = useRef<Point | null>(null);
+  const activePointerId = useRef<number | null>(null);
+  const pendingPan = useRef<Point | null>(null);
+  const panAnimationFrameId = useRef<number | null>(null);
   const svgRef = useRef(svg);
   const zoomStepPercentRef = useRef(zoomStepPercent);
 
@@ -83,6 +86,14 @@ export function PreviewPanel({ svg, error, isMaximized, onToggleMaximize }: Prev
   useEffect(() => {
     zoomStepPercentRef.current = zoomStepPercent;
   }, [zoomStepPercent]);
+
+  useEffect(() => {
+    return () => {
+      if (panAnimationFrameId.current !== null) {
+        cancelAnimationFrame(panAnimationFrameId.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const previewStage = previewStageRef.current;
@@ -183,33 +194,93 @@ export function PreviewPanel({ svg, error, isMaximized, onToggleMaximize }: Prev
     setZoomError('');
   };
 
+  const flushPendingPan = () => {
+    const nextPan = pendingPan.current;
+    pendingPan.current = null;
+
+    if (!nextPan) {
+      return;
+    }
+
+    setViewport((currentViewport) => ({
+      ...currentViewport,
+      pan: nextPan,
+    }));
+  };
+
+  const schedulePanUpdate = (nextPan: Point) => {
+    pendingPan.current = nextPan;
+
+    if (panAnimationFrameId.current !== null) {
+      return;
+    }
+
+    panAnimationFrameId.current = requestAnimationFrame(() => {
+      panAnimationFrameId.current = null;
+      flushPendingPan();
+    });
+  };
+
+  const cancelPendingPanUpdate = () => {
+    if (panAnimationFrameId.current !== null) {
+      cancelAnimationFrame(panAnimationFrameId.current);
+      panAnimationFrameId.current = null;
+    }
+
+    pendingPan.current = null;
+  };
+
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!svg || zoom <= 1) {
+    if (!svg || zoom <= 1 || !event.isPrimary || event.button !== 0) {
       return;
     }
 
     event.preventDefault();
     dragStart.current = { x: event.clientX - pan.x, y: event.clientY - pan.y };
+    activePointerId.current = event.pointerId;
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragStart.current) {
+    if (!dragStart.current || activePointerId.current !== event.pointerId) {
       return;
     }
 
     event.preventDefault();
-    setViewport((currentViewport) => ({
-      ...currentViewport,
-      pan: {
-        x: event.clientX - dragStart.current!.x,
-        y: event.clientY - dragStart.current!.y,
-      },
-    }));
+    schedulePanUpdate({
+      x: event.clientX - dragStart.current.x,
+      y: event.clientY - dragStart.current.y,
+    });
   };
 
-  const handlePointerUp = () => {
+  const handlePointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerId.current !== event.pointerId) {
+      return;
+    }
+
+    event.preventDefault();
+    if (panAnimationFrameId.current !== null) {
+      cancelAnimationFrame(panAnimationFrameId.current);
+      panAnimationFrameId.current = null;
+    }
+
+    flushPendingPan();
     dragStart.current = null;
+    activePointerId.current = null;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  const handlePointerCaptureLost = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (activePointerId.current !== event.pointerId) {
+      return;
+    }
+
+    cancelPendingPanUpdate();
+    dragStart.current = null;
+    activePointerId.current = null;
   };
 
   const zoomOut = () => {
@@ -331,8 +402,9 @@ export function PreviewPanel({ svg, error, isMaximized, onToggleMaximize }: Prev
         className={`preview-stage${zoom > 1 ? ' preview-stage--pannable' : ''}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
+        onLostPointerCapture={handlePointerCaptureLost}
       >
         {error ? <div className="preview-message preview-message--error">{error}</div> : null}
         {!error && !svg ? <div className="preview-message">Convert Mermaid code to preview the diagram.</div> : null}

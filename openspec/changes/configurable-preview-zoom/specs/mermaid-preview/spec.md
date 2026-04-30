@@ -28,6 +28,12 @@ The preview panel SHALL support zooming via `Shift` + mouse wheel and panning vi
 - **WHEN** user drags a zoomed rendered diagram across SVG text or page text
 - **THEN** the diagram pans without selecting text in the preview area
 
+#### Scenario: Fast mouse drag remains stable
+- **WHEN** user rapidly drags the zoomed preview diagram
+- **THEN** the diagram continues panning without making the page unresponsive
+- **AND** the console does not report React `ref` warnings from tooltip-wrapped icon buttons
+- **AND** the drag interaction still avoids selecting SVG or page text
+
 #### Scenario: Zoom level display
 - **WHEN** the zoom level changes
 - **THEN** a labeled zoom percentage indicator is shown (e.g., "100%", "150%", "2000%")

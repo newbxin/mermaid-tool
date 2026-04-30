@@ -45,6 +45,10 @@ npm run dev
 http://localhost:5173
 ```
 
+### Windows 一键启动
+
+在 Windows 中也可以直接双击根目录的 `run-dev.bat`。脚本会自动进入项目目录，缺少 `node_modules` 时先安装依赖，然后启动 Vite 开发服务。
+
 ### 构建生产版本
 
 ```bash
@@ -124,6 +128,7 @@ flowchart LR
 
 | 命令 | 说明 |
 | --- | --- |
+| `run-dev.bat` | Windows 双击启动开发服务，必要时自动安装依赖 |
 | `npm run dev` | 启动 Vite 开发服务 |
 | `npm run build` | 执行 TypeScript 构建并打包生产版本 |
 | `npm run preview` | 预览生产构建产物 |

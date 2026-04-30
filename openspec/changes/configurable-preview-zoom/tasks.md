@@ -57,3 +57,12 @@
 - [x] 7.4 Preserve existing plus/minus button and direct-input zoom behavior.
 - [x] 7.5 Update OpenSpec design and requirement scenarios for cursor-anchored wheel zoom.
 - [x] 7.6 Run the TypeScript/Vite build after the cursor-anchored zoom update.
+
+## 8. 预览拖拽稳定性修复
+
+- [x] 8.1 将 `IconButton` 改为 `forwardRef`，避免 Radix Tooltip `asChild` 注入 `ref` 时触发 React 警告。
+- [x] 8.2 使用 `requestAnimationFrame` 合并预览拖拽过程中的平移更新，降低快速拖动时的重渲染压力。
+- [x] 8.3 在拖拽结束、取消、丢失 pointer capture 和组件卸载时清理拖拽状态与未执行的动画帧。
+- [x] 8.4 限制拖拽只响应主指针左键，避免非预期指针事件触发平移。
+- [x] 8.5 更新规格，覆盖快速拖动缩放预览时不出现 ref 警告且页面保持可用的场景。
+- [x] 8.6 运行 TypeScript/Vite 构建验证。
