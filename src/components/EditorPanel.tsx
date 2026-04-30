@@ -3,8 +3,10 @@ import { basicSetup } from 'codemirror';
 import { EditorState } from '@codemirror/state';
 import { EditorView, keymap } from '@codemirror/view';
 import { indentWithTab } from '@codemirror/commands';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import { mermaidHighlighting, mermaidLanguage } from '../editor/mermaidLanguage';
 import { useTheme } from '../hooks/useTheme';
+import { IconButton, TooltipHint } from './ui';
 
 interface EditorPanelProps {
   code: string;
@@ -108,9 +110,16 @@ export function EditorPanel({ code, isMaximized, onChange, onToggleMaximize }: E
     <section className="panel editor-panel" aria-label="Mermaid editor">
       <div className="panel-header">
         <h2>Editor</h2>
-        <button className="icon-button" type="button" onClick={onToggleMaximize}>
-          {isMaximized ? 'Restore' : 'Maximize'}
-        </button>
+        <TooltipHint content={isMaximized ? 'Restore' : 'Maximize'}>
+          <IconButton
+            icon={isMaximized ? Minimize2 : Maximize2}
+            type="button"
+            onClick={onToggleMaximize}
+            aria-label={isMaximized ? 'Restore editor panel' : 'Maximize editor panel'}
+            aria-pressed={isMaximized}
+            title={isMaximized ? 'Restore' : 'Maximize'}
+          />
+        </TooltipHint>
       </div>
       <div className="editor-host" ref={containerRef} />
     </section>

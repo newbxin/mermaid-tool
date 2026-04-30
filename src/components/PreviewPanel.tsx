@@ -1,6 +1,10 @@
+import type { CSSProperties } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { Download, Maximize2, Minimize2 } from 'lucide-react';
 import { PREVIEW_DEFAULT_ZOOM_STEP_PERCENT, PREVIEW_MAX_ZOOM, PREVIEW_MIN_ZOOM } from '../config/preview';
 import { downloadSvgAsPng, downloadTextFile } from '../lib/download';
+import { DownloadFormatSelect, IconButton, TooltipHint } from './ui';
+import type { DownloadFormat } from './ui';
 
 interface PreviewPanelProps {
   svg: string;
@@ -40,6 +44,18 @@ const DEFAULT_VIEWPORT: Viewport = {
   pan: { x: 0, y: 0 },
 };
 
+const SCREEN_READER_ONLY_STYLE: CSSProperties = {
+  position: 'absolute',
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: 'hidden',
+  clip: 'rect(0, 0, 0, 0)',
+  whiteSpace: 'nowrap',
+  border: 0,
+};
+
 export function PreviewPanel({ svg, error, isMaximized, onToggleMaximize }: PreviewPanelProps) {
   const [viewport, setViewport] = useState<Viewport>(DEFAULT_VIEWPORT);
   const [zoomStepInput, setZoomStepInput] = useState(String(PREVIEW_DEFAULT_ZOOM_STEP_PERCENT));
@@ -47,6 +63,7 @@ export function PreviewPanel({ svg, error, isMaximized, onToggleMaximize }: Prev
   const [zoomStepError, setZoomStepError] = useState('');
   const [zoomInput, setZoomInput] = useState('100');
   const [zoomError, setZoomError] = useState('');
+  const [downloadFormat, setDownloadFormat] = useState<DownloadFormat>('svg');
   const previewStageRef = useRef<HTMLDivElement | null>(null);
   const diagramFrameRef = useRef<HTMLDivElement | null>(null);
   const dragStart = useRef<Point | null>(null);
@@ -203,6 +220,19 @@ export function PreviewPanel({ svg, error, isMaximized, onToggleMaximize }: Prev
     applyZoomDelta(zoomStepPercent / 100);
   };
 
+  const handleDownload = () => {
+    if (!svg) {
+      return;
+    }
+
+    if (downloadFormat === 'png') {
+      void downloadSvgAsPng('diagram.png', svg);
+      return;
+    }
+
+    downloadTextFile('diagram.svg', svg, 'image/svg+xml;charset=utf-8');
+  };
+
   return (
     <section className="panel preview-panel" aria-label="Mermaid preview">
       <div className="panel-header">
@@ -211,16 +241,18 @@ export function PreviewPanel({ svg, error, isMaximized, onToggleMaximize }: Prev
           <div className="zoom-controls">
             <label className="zoom-control">
               <span>Step</span>
-              <input
-                className="zoom-step-input"
-                type="text"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                value={zoomStepInput}
-                onChange={handleZoomStepChange}
-                aria-invalid={Boolean(zoomStepError)}
-                aria-describedby={zoomStepError ? 'zoom-step-error' : undefined}
-              />
+              <TooltipHint content={zoomStepError} disabled={!zoomStepError} open={Boolean(zoomStepError)}>
+                <input
+                  className="zoom-step-input"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  value={zoomStepInput}
+                  onChange={handleZoomStepChange}
+                  aria-invalid={Boolean(zoomStepError)}
+                  aria-describedby={zoomStepError ? 'zoom-step-error' : undefined}
+                />
+              </TooltipHint>
             </label>
             <div className="zoom-control">
               <span>Zoom</span>
@@ -234,18 +266,20 @@ export function PreviewPanel({ svg, error, isMaximized, onToggleMaximize }: Prev
                 >
                   -
                 </button>
-                <input
-                  className="zoom-percent-input"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={zoomInput}
-                  onChange={handleZoomInputChange}
-                  disabled={!svg}
-                  aria-label="Zoom percentage"
-                  aria-invalid={Boolean(zoomError)}
-                  aria-describedby={zoomError ? 'zoom-error' : undefined}
-                />
+                <TooltipHint content={zoomError} disabled={!zoomError} open={Boolean(zoomError)}>
+                  <input
+                    className="zoom-percent-input"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={zoomInput}
+                    onChange={handleZoomInputChange}
+                    disabled={!svg}
+                    aria-label="Zoom percentage"
+                    aria-invalid={Boolean(zoomError)}
+                    aria-describedby={zoomError ? 'zoom-error' : undefined}
+                  />
+                </TooltipHint>
                 <span className="zoom-percent-suffix">%</span>
                 <button
                   className="zoom-adjust-button"
@@ -260,34 +294,36 @@ export function PreviewPanel({ svg, error, isMaximized, onToggleMaximize }: Prev
             </div>
           </div>
           {zoomStepError ? (
-            <div className="zoom-error" id="zoom-step-error" role="status" aria-live="polite">
+            <span id="zoom-step-error" role="status" aria-live="polite" style={SCREEN_READER_ONLY_STYLE}>
               {zoomStepError}
-            </div>
+            </span>
           ) : null}
           {zoomError ? (
-            <div className="zoom-error" id="zoom-error" role="status" aria-live="polite">
+            <span id="zoom-error" role="status" aria-live="polite" style={SCREEN_READER_ONLY_STYLE}>
               {zoomError}
-            </div>
+            </span>
           ) : null}
-          <button
-            className="toolbar-button"
-            type="button"
-            disabled={!canExport}
-            onClick={() => downloadTextFile('diagram.svg', svg, 'image/svg+xml;charset=utf-8')}
-          >
-            SVG
-          </button>
-          <button
-            className="toolbar-button"
-            type="button"
-            disabled={!canExport}
-            onClick={() => void downloadSvgAsPng('diagram.png', svg)}
-          >
-            PNG
-          </button>
-          <button className="icon-button" type="button" onClick={onToggleMaximize}>
-            {isMaximized ? 'Restore' : 'Maximize'}
-          </button>
+          <DownloadFormatSelect value={downloadFormat} onValueChange={setDownloadFormat} disabled={!canExport} />
+          <TooltipHint content="Download diagram">
+            <IconButton
+              icon={Download}
+              type="button"
+              disabled={!canExport}
+              onClick={handleDownload}
+              aria-label={`Download diagram as ${downloadFormat.toUpperCase()}`}
+              title="Download"
+            />
+          </TooltipHint>
+          <TooltipHint content={isMaximized ? 'Restore' : 'Maximize'}>
+            <IconButton
+              icon={isMaximized ? Minimize2 : Maximize2}
+              type="button"
+              onClick={onToggleMaximize}
+              aria-label={isMaximized ? 'Restore preview panel' : 'Maximize preview panel'}
+              aria-pressed={isMaximized}
+              title={isMaximized ? 'Restore' : 'Maximize'}
+            />
+          </TooltipHint>
         </div>
       </div>
       <div

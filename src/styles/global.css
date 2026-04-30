@@ -26,6 +26,15 @@ input {
   font: inherit;
 }
 
+button:focus-visible,
+input:focus-visible,
+.ui-icon-button:focus-visible,
+.ui-select-trigger:focus-visible,
+.ui-select-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .app-shell {
   display: grid;
   grid-template-rows: 64px minmax(0, 1fr) 28px;
@@ -202,11 +211,20 @@ input {
 }
 
 .zoom-step-input:hover,
+.zoom-percent-input:hover {
+  border-color: var(--accent);
+}
+
 .zoom-step-input:focus,
-.zoom-percent-input:hover,
 .zoom-percent-input:focus {
   border-color: var(--accent);
   outline: none;
+}
+
+.zoom-step-input:focus-visible,
+.zoom-percent-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .zoom-adjust-button:hover:not(:disabled) {
@@ -260,6 +278,160 @@ input {
   opacity: 0.55;
 }
 
+.ui-icon-button {
+  display: inline-grid;
+  grid-auto-flow: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 30px;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.ui-icon-button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.ui-icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ui-icon-button[aria-pressed='true'] {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--surface-raised);
+}
+
+.ui-icon-button__icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.ui-icon-button__label {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.ui-tooltip {
+  z-index: 50;
+  max-width: 240px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.ui-tooltip-arrow {
+  fill: var(--surface-raised);
+}
+
+.ui-select-trigger {
+  display: inline-grid;
+  grid-template-columns: minmax(34px, 1fr) 14px;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.ui-select-trigger:hover:not([data-disabled]) {
+  border-color: var(--accent);
+}
+
+.ui-select-trigger[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ui-select-icon {
+  display: inline-flex;
+  color: var(--text-muted);
+}
+
+.ui-select-icon-mark {
+  width: 7px;
+  height: 7px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+
+.ui-select-content {
+  z-index: 50;
+  min-width: var(--radix-select-trigger-width);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.ui-select-viewport {
+  padding: 4px;
+}
+
+.ui-select-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 16px;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  padding: 0 6px 0 8px;
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+  outline: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.ui-select-item[data-highlighted] {
+  color: var(--text);
+  background: var(--surface-raised);
+}
+
+.ui-select-item[data-disabled] {
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.ui-select-item-indicator {
+  display: inline-flex;
+  color: var(--accent);
+}
+
+.ui-select-check-mark {
+  width: 12px;
+  height: 7px;
+  border-bottom: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+  transform: translateY(-1px) rotate(-45deg);
+}
+
 .center-bar {
   display: flex;
   align-items: center;
@@ -270,21 +442,35 @@ input {
 }
 
 .convert-button {
+  display: grid;
+  place-items: center;
   width: 36px;
   min-height: 112px;
-  padding: 8px 0;
+  padding: 0;
   color: #ffffff;
   background: var(--accent-strong);
   border-color: var(--accent-strong);
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 1.1;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
+  line-height: 1;
 }
 
 .convert-button:hover:not(:disabled) {
   filter: brightness(1.08);
+}
+
+.convert-button__icon {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.4;
+}
+
+.convert-button__icon--spinning {
+  animation: convert-spin 900ms linear infinite;
+}
+
+@keyframes convert-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .editor-host {

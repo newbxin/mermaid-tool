@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import * as Tooltip from '@radix-ui/react-tooltip';
 import { CenterBar } from './components/CenterBar';
 import { EditorPanel } from './components/EditorPanel';
 import { Header } from './components/Header';
@@ -54,7 +55,9 @@ function MermaidTool() {
 export default function App() {
   return (
     <ThemeProvider>
-      <MermaidTool />
+      <Tooltip.Provider delayDuration={350} skipDelayDuration={120}>
+        <MermaidTool />
+      </Tooltip.Provider>
     </ThemeProvider>
   );
 }

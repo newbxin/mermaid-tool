@@ -86,7 +86,7 @@ npm run preview
 ## 验证清单
 
 代码变更后至少运行：
-
+z
 ```bash
 npm run build
 ```
